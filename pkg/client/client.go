@@ -17,12 +17,12 @@ func WithEnv(c *hackatticClient) {
 	c.token = os.Getenv("HACKATTIC_ACCESS_TOKEN")
 }
 
-const HackatticProblemURL = "https://hackattic.com/challenges/%s/problem?access_token=%s"
+const HackatticProblemURL = "https://hackattic.com/challenges/%s/%s?access_token=%s%s"
 
 type hackatticClient struct {
+	httpClient *http.Client
 	challenge  string
 	token      string
-	httpClient *http.Client
 }
 
 func NewHackatticClient(challenge, token string) (*hackatticClient, error) {
@@ -35,14 +35,42 @@ func NewHackatticClient(challenge, token string) (*hackatticClient, error) {
 	}
 
 	return &hackatticClient{
+		&http.Client{},
 		challenge,
 		token,
-		&http.Client{},
 	}, nil
 }
 
+func (c *hackatticClient) GetChallenge(out interface{}) error {
+	formattedURL := fmt.Sprintf(HackatticProblemURL, c.challenge, "problem", c.token, "")
+
+	req, err := http.NewRequest("GET", formattedURL, nil)
+	if err != nil {
+		return err
+	}
+
+	resp, err := c.httpClient.Do(req)
+	if err != nil {
+		return err
+	}
+
+	defer resp.Body.Close()
+
+	jsonBody, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return err
+	}
+
+	return json.Unmarshal(jsonBody, out)
+}
+
 func (c *hackatticClient) PostSolution(solution interface{}) ([]byte, error) {
-	formattedURL := fmt.Sprintf(HackatticProblemURL, c.challenge, c.token)
+	formattedURL := fmt.Sprintf(HackatticProblemURL,
+		c.challenge,
+		"solve",
+		c.token,
+		"&playground=1",
+	)
 
 	jsonBytes, err := json.Marshal(solution)
 	if err != nil {
@@ -61,25 +89,4 @@ func (c *hackatticClient) PostSolution(solution interface{}) ([]byte, error) {
 	defer resp.Body.Close()
 
 	return io.ReadAll(resp.Body)
-}
-
-func (c *hackatticClient) GetChallenge(out interface{}) error {
-	req, err := http.NewRequest("GET", fmt.Sprintf(HackatticProblemURL, c.challenge, c.token), nil)
-	if err != nil {
-		return err
-	}
-
-	resp, err := c.httpClient.Do(req)
-	if err != nil {
-		return err
-	}
-
-	defer resp.Body.Close()
-
-	jsonBody, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return err
-	}
-
-	return json.Unmarshal(jsonBody, out)
 }
