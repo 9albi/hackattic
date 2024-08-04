@@ -1,16 +1,15 @@
-package cmd
+package main
 
 import (
 	"crypto/sha256"
 	"encoding/json"
+	"log"
 	"log/slog"
 	"math/bits"
 	"os"
 
 	"github.com/9albi/hackattic/pkg/client"
 )
-
-type MiniMiner struct{}
 
 type Problem struct {
 	Block struct {
@@ -24,7 +23,7 @@ type Solution struct {
 	Nonce int `json:"nonce"`
 }
 
-func (mm MiniMiner) Solve() error {
+func solve() error {
 	token := os.Getenv("HACKATTIC_ACCESS_TOKEN")
 	hackatticClient, err := client.NewHackatticClient("mini_miner", token)
 	if err != nil {
@@ -59,9 +58,12 @@ func (mm MiniMiner) Solve() error {
 		Nonce: problem.Block.Nonce,
 	}
 
-	hackatticClient.PostSolution(solution)
-	slog.Info("solution")
+	result, err := hackatticClient.PostSolution(solution)
+	if err != nil {
+		return err
+	}
 
+	log.Print(string(result))
 	return nil
 }
 
@@ -75,4 +77,11 @@ func ComputeDifficulty(shaDigest []byte) int {
 		}
 	}
 	return difficulty
+}
+
+func main() {
+	err := solve()
+	if err != nil {
+		panic(err)
+	}
 }
