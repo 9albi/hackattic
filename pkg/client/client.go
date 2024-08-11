@@ -17,7 +17,7 @@ func WithEnv(c *hackatticClient) {
 	c.token = os.Getenv("HACKATTIC_ACCESS_TOKEN")
 }
 
-const HackatticProblemURL = "https://hackattic.com/challenges/%s/%s?access_token=%s%s"
+const HackatticProblemURL = "https://hackattic.com/challenges/%s/%s?access_token=%s" // &playground=1
 
 type hackatticClient struct {
 	httpClient *http.Client
@@ -42,7 +42,7 @@ func NewHackatticClient(challenge, token string) (*hackatticClient, error) {
 }
 
 func (c *hackatticClient) GetChallenge(out interface{}) error {
-	formattedURL := fmt.Sprintf(HackatticProblemURL, c.challenge, "problem", c.token, "")
+	formattedURL := fmt.Sprintf(HackatticProblemURL, c.challenge, "problem", c.token)
 
 	req, err := http.NewRequest("GET", formattedURL, nil)
 	if err != nil {
@@ -69,7 +69,6 @@ func (c *hackatticClient) PostSolution(solution interface{}) ([]byte, error) {
 		c.challenge,
 		"solve",
 		c.token,
-		"&playground=1",
 	)
 
 	jsonBytes, err := json.Marshal(solution)

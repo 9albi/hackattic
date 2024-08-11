@@ -7,7 +7,7 @@ My solutions to hackattic challenges.
 - [x] [Mini miner](https://hackattic.com/challenges/mini_miner)
 - [x] [Help me unpack](https://hackattic.com/challenges/help_me_unpack)
 - [x] [Tales of SSL](https://hackattic.com/challenges/tales_of_ssl)
-- [ ] [Reading QR](https://hackattic.com/challenges/reading_qr)
+- [X] [Reading QR](https://hackattic.com/challenges/reading_qr)
 - [ ] [Backup restore](https://hackattic.com/challenges/backup_restore)
 - [ ] [Collision course](https://hackattic.com/challenges/collision_course)
 - [ ] [Dockerized solutions](https://hackattic.com/challenges/dockerized_solutions)
